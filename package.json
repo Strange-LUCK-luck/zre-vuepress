@@ -1,0 +1,18 @@
+{
+  "name": "zre",
+  "version": "1.0.0",
+  "description": "个人博客网站",
+  "main": "index.js",
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vuepress": "^1.9.10"
+  },
+  "dependencies": {
+    "gl-matrix": "^3.4.3"
+  }
+}
