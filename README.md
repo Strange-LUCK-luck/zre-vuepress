@@ -2,10 +2,10 @@
 
 ```bash
 # 克隆项目1
-git clone https://gitee.com/aa1qwq/bocheng
+git clone https://github.com/Strange-LUCK-luck/zre-vuepress.git
 
 # 进入项目目录
-cd bc-ui
+cd zre-vuepress
 
 # 安装依赖
 npm install
@@ -14,7 +14,7 @@ npm install
 npm install --registry=https://registry.npmmirror.com
 
 # 启动服务
-npm run dev
+npm run docs:dev
 ```
 
 浏览器访问 http://localhost:80
