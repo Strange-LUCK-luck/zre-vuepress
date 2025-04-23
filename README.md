@@ -17,7 +17,7 @@ npm install --registry=https://registry.npmmirror.com
 npm run docs:dev
 ```
 
-浏览器访问 http://localhost:80
+浏览器访问 http://localhost:8080
 
 ## 发布
 
