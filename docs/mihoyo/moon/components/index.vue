@@ -223,6 +223,7 @@ export default {
         },
         // 判断是否渲染
         renderChildren() {
+            console.log("this.boxWidth,this.boxHeight :>> ", this.boxWidth, this.boxHeight);
             if (this.progress === 100 && this.isThreeLoaded) {
                 if (window.THREE) {
                     setTimeout(() => {
@@ -273,8 +274,8 @@ export default {
         getRenderConfig(type, index) {
             let width, height, animate, x, y, z, rotate, layer, radius, startAngle;
             if (type === "starCompass") {
-                x = -140;
-                y = 280;
+                x = -(this.boxHeight / 7.9);
+                y = this.boxHeight / 3.95;
                 if (index === 5) {
                     width = this.boxHeight * 0.55;
                     animate = (img, dt) => {
@@ -306,7 +307,7 @@ export default {
                     };
                 } else if (index === 4) {
                     width = this.boxHeight * 0.242;
-                    y = 281;
+                    y = this.boxHeight / 3.95 + 1;
                     animate = (img, dt) => {
                         img.position.x = 0.5;
                     };
@@ -327,8 +328,8 @@ export default {
                     z: 0,
                 };
             } else if (type === "swiper") {
-                width = 70;
-                height = 70;
+                width = this.boxHeight/15.8;
+                height = this.boxHeight/15.8;
                 if (index < 3) {
                     const r = this.boxHeight * 0.275 - 100;
                     const degree = (360 / 3) * index;
