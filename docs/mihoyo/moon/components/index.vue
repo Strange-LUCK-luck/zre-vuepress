@@ -328,23 +328,22 @@ export default {
                     z: 0,
                 };
             } else if (type === "swiper") {
-                width = this.boxHeight/15.8;
-                height = this.boxHeight/15.8;
+                width = this.boxHeight / 15.8;
+                height = this.boxHeight / 15.8;
                 if (index < 3) {
-                    const r = this.boxHeight * 0.275 - 100;
+                    const r = this.boxHeight * 0.275 - this.boxHeight / 11.06;
                     const degree = (360 / 3) * index;
                     const radian = degree * (Math.PI / 180);
                     x = r * Math.cos(radian);
                     y = r * Math.sin(radian);
-                    z = 20;
                 } else {
-                    const r = this.boxHeight * 0.4375 - 50;
+                    const r = this.boxHeight * 0.4375 - this.boxHeight / 22.119;
                     const degree = (360 / 8) * (index - 3);
                     const radian = degree * (Math.PI / 180);
                     x = r * Math.cos(radian);
                     y = r * Math.sin(radian);
-                    z = 20;
                 }
+                z = this.isMobile ? 10 : 20;
                 animate = (img, dt) => {
                     img.rotation.y += 0.0006;
                 };
