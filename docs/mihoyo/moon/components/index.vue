@@ -1,7 +1,7 @@
 <template>
     <div class="container" :style="{ width: this.isMobile ? boxWidth + 'px' : '100vw', height: this.isMobile ? boxHeight + 'px' : '100vh' }">
         <div class="video-box" ref="loading_box" :style="{ width: boxWidth + 'px', height: boxHeight + 'px' }">
-            <canvasRender class="canvas_box" ref="canvas_render" :height="boxHeight" :width="boxWidth" :focalLength="boxWidth" :class="{ first: progress === 100 }"></canvasRender>
+            <canvasRender class="canvas_box" ref="canvas_render" :height="boxHeight" :width="boxWidth" v-if="progress === 100 && isThreeLoaded" :class="{ first: progress === 100 }"></canvasRender>
             <div class="loading-content" :data-progress="progress">
                 <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" :style="{ display: progress === 100 ? 'none' : 'block' }">
                     <defs>
@@ -34,20 +34,18 @@ const swiper_urls = [
     require("../../../.vuepress/public/mihoyo/空月之歌/swiper_11.png"),
     require("../../../.vuepress/public/mihoyo/空月之歌/swiper_bg.png"),
     require("../../../.vuepress/public/mihoyo/空月之歌/swiper_bg_select.png"),
-];
-const bg_urls = [
-    require("../../../.vuepress/public/mihoyo/空月之歌/streamer.png"),
-    require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_a.png"),
-    require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_c_2.png"),
-    require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_d.png"),
-    require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_d_2.png"),
-    require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_e.png"),
-    require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_top.png"),
-    require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_xiaopan.png"),
-    require("../../../.vuepress/public/mihoyo/空月之歌/p2_phone_niequan_b.png"),
-    require("../../../.vuepress/public/mihoyo/空月之歌/p2_phone_quan_a.png"),
-    require("../../../.vuepress/public/mihoyo/空月之歌/point_tint.png"),
     require("../../../.vuepress/public/mihoyo/空月之歌/bg.jpg"),
+    require("../../../.vuepress/public/mihoyo/空月之歌/streamer.png"),
+];
+const bg_urls = [require("../../../.vuepress/public/mihoyo/空月之歌/point_tint.png")];
+const star_compass_urls = [
+    require("../../../.vuepress/public/mihoyo/空月之歌/p2_phone_niequan_b.png"),
+    require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_c_2.png"),
+    require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_d_2.png"),
+    require("../../../.vuepress/public/mihoyo/空月之歌/p2_phone_quan_a.png"),
+    require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_top.png"),
+    require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_a.png"),
+    require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_d.png"),
 ];
 export default {
     name: "index", // 这个名字推荐：大写字母开头驼峰法命名
@@ -62,8 +60,8 @@ export default {
             boxHeight: 0, //div高度
             rootFontPx: 0, //rem大小
             progress: 0, //加载进度
-            imgNodes: [],
-            imgNodes_2: [],
+            imgNodes: {},
+            isThreeLoaded: false,
         };
     },
     computed: {
@@ -78,6 +76,7 @@ export default {
     watch: {},
     created() {},
     mounted() {
+        this.loadThree();
         this.onResize();
         window.addEventListener("resize", this.onResize);
         window.addEventListener("orientationchange", this.onResize);
@@ -95,6 +94,24 @@ export default {
     }, //生命周期 - 销毁之前
     destroyed() {}, //生命周期 - 销毁完成
     methods: {
+        // 加载three.js
+        loadThree() {
+            // 创建 script 元素
+            const script = document.createElement("script");
+            script.src = "https://cdn.jsdelivr.net/npm/three@latest/build/three.min.js";
+            script.type = "text/javascript";
+            script.onload = () => {
+                this.isThreeLoaded = true; // 脚本加载完成后，允许渲染子组件
+                this.renderChildren();
+            };
+            script.onerror = (err) => {
+                console.error("Error loading Three.js:", err);
+            };
+            document.head.appendChild(script);
+            document.body.style.background = `url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKAQMAAAC3/F3+AAAABlBMVEUAAAAICAhtdupNAAAAG0lEQVQI12NIYGD4AEJABggwMzCwN4AQM4gHAEmsA7V6aMfAAAAAAElFTkSuQmCC) repeat center center`;
+            document.body.style.backgroundSize = "0.1rem 0.1rem";
+            document.body.style.color = "#333";
+        },
         // 判断是不是手机端
         detectMobile() {
             this.isMobile = /Android|webOS|iPhone|iPod|BlackBerry|Mobile/i.test(navigator.userAgent);
@@ -129,8 +146,8 @@ export default {
             const cw = this.isMobile ? vh : vw;
             const ch = this.isMobile ? vw : vh;
 
-            // 2. 算出最大 16:9 区域
-            const ratio = 16 / 9;
+            // 2. 算出最大 2560:1271 区域
+            const ratio = 2083.33 / 900;
             let w, h;
             if (cw / ch > ratio) {
                 h = ch;
@@ -152,87 +169,211 @@ export default {
         },
         // 加载图片
         loadImagesWithProgress() {
-            let loadingList = [];
-            let loadingList_2 = [];
-            const list = swiper_urls;
-            const list_2 = bg_urls;
-            const length = list.length + list_2.length;
-            loadingList.length = list.length;
+            let swiper = new Array(10);
+            let swiperBg = new Array(2);
+            let starCompass = new Array(6);
+            let backImg = new Array(6);
+            const swiperURL = swiper_urls;
+            const bg = bg_urls;
+            const star_compass = star_compass_urls;
+            const length = swiperURL.length + bg.length + star_compass.length;
             let count = 0;
-            list.forEach((item, index) => {
+            swiperURL.forEach((item, index) => {
                 const img = new Image();
                 img.onload = () => {
+                    if (index <= 10) {
+                        swiper.splice(index, 1, this.getBaseURI(img));
+                    } else if (index === 11) {
+                        swiperBg.splice(0, 1, this.getBaseURI(img));
+                    } else if (index === 11) {
+                        swiperBg.splice(1, 1, this.getBaseURI(img));
+                    }
                     count += 1;
                     this.progress = Math.round((count / length) * 100);
-                    if (this.progress === 100) {
-                        this.canvasRender();
-                    }
+                    this.renderChildren();
                 };
                 img.src = item;
-                loadingList.splice(index, 1, img);
             });
-            list_2.forEach((item, index) => {
+            bg.forEach((item, index) => {
                 const img = new Image();
                 img.onload = () => {
+                    backImg.splice(index, 1, this.getBaseURI(img));
                     count += 1;
                     this.progress = Math.round((count / length) * 100);
-                    if (this.progress === 100) {
-                        this.canvasRender();
-                    }
+                    this.renderChildren();
                 };
                 img.src = item;
-                loadingList_2.splice(index, 1, img);
             });
-            this.imgNodes = loadingList;
-            this.imgNodes_2 = loadingList_2;
+            star_compass.forEach((item, index) => {
+                const img = new Image();
+                img.onload = () => {
+                    starCompass.splice(index, 1, this.getBaseURI(img));
+                    count += 1;
+                    this.progress = Math.round((count / length) * 100);
+                    this.renderChildren();
+                };
+                img.src = item;
+            });
+            this.imgNodes = {
+                backImg,
+                starCompass,
+                swiper,
+                swiperBg,
+            };
+        },
+        // 判断是否渲染
+        renderChildren() {
+            if (this.progress === 100 && this.isThreeLoaded) {
+                if (window.THREE) {
+                    setTimeout(() => {
+                        this.canvasRender();
+                    }, 0);
+                } else {
+                    setTimeout(() => {
+                        this.renderChildren();
+                    }, 0);
+                }
+            }
         },
         // 渲染图片
         canvasRender() {
-            const imgList = this.imgNodes_2;
-            imgList.forEach((image, index) => {
-                if ([4, 2, 1, 3].includes(index)) {
-                    let imageWidth = this.boxWidth * 0.5;
-                    let animate = (img, dt) => {};
-                    let onMouseEnter = (img) => {};
-                    let onMouseLeave = (img) => {};
-                    if (index === 4) {
-                        imageWidth = this.boxWidth * 0.5;
-                        animate = (img, dt) => {
-                            img.rotation += 0.005;
-                        };
-                    } else if (index === 3) {
-                        imageWidth = this.boxWidth * 0.5;
-                        animate = (img, dt) => {
-                            img.rotation -= 0.0025;
-                        };
-                    } else if (index === 1) {
-                        imageWidth = this.boxWidth * 0.3;
-                        animate = (img, dt) => {
-                            img.rotation -= 0.005;
-                        };
-                    } else if (index === 2) {
-                        imageWidth = this.boxWidth * 0.38;
-                        animate = (img, dt) => {
-                            img.rotation += 0.006;
-                        };
-                    }
-                    const item = {
-                        img: image,
-                        x: (this.boxWidth - imageWidth) / 2,
-                        y: (this.boxHeight - imageWidth) / 2,
-                        z: 0,
-                        width: imageWidth,
-                        height: imageWidth,
-                        rotation: 0,
-                        rotateX: 45,
-                        rotateY: 0,
-                        animate,
-                        onMouseEnter,
-                        onMouseLeave,
-                    };
-                    this.$refs.canvas_render.addImageObject(item);
+            // 星星
+            this.$refs.canvas_render.loadingStart();
+            // 旋转盘
+            const starCompass = this.imgNodes.starCompass || [];
+            const swiperBg = this.imgNodes.swiperBg || [];
+            starCompass.forEach((image, index) => {
+                let item = this.getRenderConfig("starCompass", index);
+                item.src = image;
+                if (index === 5) {
+                    item.iconList = this.imgNodes.swiper
+                        .filter((node, iconIndex) => iconIndex < 3)
+                        .map((node, iconIndex) => {
+                            const newNode = this.getRenderConfig("swiper", iconIndex);
+                            newNode.icon = node;
+                            newNode.background = swiperBg[0];
+                            newNode.backgroundSelect = swiperBg[1];
+                            return newNode;
+                        });
+                } else if (index === 6) {
+                    item.iconList = this.imgNodes.swiper
+                        .filter((node, iconIndex) => iconIndex >= 3)
+                        .map((node, iconIndex) => {
+                            const newNode = this.getRenderConfig("swiper", iconIndex + 3);
+                            newNode.icon = node;
+                            newNode.background = swiperBg[0];
+                            newNode.backgroundSelect = swiperBg[1];
+                            return newNode;
+                        });
                 }
+                this.$refs.canvas_render.addImageObject(item);
             });
+        },
+        // 获取渲染配置
+        getRenderConfig(type, index) {
+            let width, height, animate, x, y, z, rotate, layer, radius, startAngle;
+            if (type === "starCompass") {
+                x = -140;
+                y = 280;
+                if (index === 5) {
+                    width = this.boxHeight * 0.55;
+                    animate = (img, dt) => {
+                        img.rotation.z += 0.0006;
+                    };
+                } else if (index === 1) {
+                    width = this.boxHeight * 0.605;
+                    animate = (img, dt) => {
+                        img.rotation.z -= 0.0005;
+                    };
+                } else if (index === 6) {
+                    ///
+                    width = this.boxHeight * 0.875;
+                    animate = (img, dt) => {
+                        img.rotation.z += 0.0005;
+                    };
+                } else if (index === 2) {
+                    width = this.boxHeight * 0.825;
+                    animate = (img, dt) => {
+                        img.rotation.z -= 0.0004;
+                    };
+                } else if (index === 0) {
+                    width = this.boxHeight * 0.066;
+                    animate = (img, dt) => {};
+                } else if (index === 3) {
+                    width = this.boxHeight * 1.122;
+                    animate = (img, dt) => {
+                        img.rotation.z += 0.00055;
+                    };
+                } else if (index === 4) {
+                    width = this.boxHeight * 0.242;
+                    y = 281;
+                    animate = (img, dt) => {
+                        img.position.x = 0.5;
+                    };
+                }
+                rotate = {
+                    x: -79,
+                    y: -10,
+                    z: 0,
+                };
+                height = width;
+                layer = index;
+            } else if (type === "backImg") {
+                width = this.boxWidth * 1.2;
+                height = this.boxHeight * 1.2;
+                rotate = {
+                    x: -30,
+                    y: 0,
+                    z: 0,
+                };
+            } else if (type === "swiper") {
+                width = 70;
+                height = 70;
+                if (index < 3) {
+                    const r = this.boxHeight * 0.275 - 100;
+                    const degree = (360 / 3) * index;
+                    const radian = degree * (Math.PI / 180);
+                    x = r * Math.cos(radian);
+                    y = r * Math.sin(radian);
+                    z = 20;
+                } else {
+                    const r = this.boxHeight * 0.4375 - 50;
+                    const degree = (360 / 8) * (index - 3);
+                    const radian = degree * (Math.PI / 180);
+                    x = r * Math.cos(radian);
+                    y = r * Math.sin(radian);
+                    z = 20;
+                }
+                animate = (img, dt) => {
+                    img.rotation.y += 0.0006;
+                };
+            }
+            return {
+                src: "",
+                iconList: [],
+                width,
+                height,
+                animate,
+                x,
+                y,
+                z,
+                rotate,
+                layer,
+                radius,
+                startAngle,
+            };
+        },
+        // img转换成baseURL
+        getBaseURI(img) {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+
+            const dataURI = canvas.toDataURL("image/png"); // 可改为 'image/jpeg'
+            return dataURI;
         },
     },
 };
@@ -316,8 +457,5 @@ html {
 }
 body {
     height: 100%;
-    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKAQMAAAC3/F3+AAAABlBMVEUAAAAICAhtdupNAAAAG0lEQVQI12NIYGD4AEJABggwMzCwN4AQM4gHAEmsA7V6aMfAAAAAAElFTkSuQmCC) repeat center center;
-    background-size: 0.1rem 0.1rem;
-    color: #333;
 }
 </style>
