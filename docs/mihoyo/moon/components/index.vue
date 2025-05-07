@@ -313,7 +313,7 @@ export default {
                     };
                 }
                 rotate = {
-                    x: -79,
+                    x: -75,
                     y: -10,
                     z: 0,
                 };

@@ -223,29 +223,30 @@ export default {
                 // a. 加载默认状态纹理和悬停状态纹理
                 const icon = new THREE.TextureLoader().load(data.icon);
                 const background = new THREE.TextureLoader().load(require("../../../.vuepress/public/mihoyo/空月之歌/swiper_bg.png"));
-                const backgroundSelect = new THREE.TextureLoader().load(data.backgroundSelect);
+                const backgroundSelect = new THREE.TextureLoader().load(require("../../../.vuepress/public/mihoyo/空月之歌/swiper_bg_select.png"));
 
                 // 创建 SpriteMaterial，使精灵永远面向相机
                 // 1 默认背景
                 const spriteDefault = new THREE.SpriteMaterial({
                     map: background,
                     transparent: true,
+                    opacity: 1,
                     depthWrite: false, // 不写入深度缓存
                     depthTest: true, // （可选）是否进行深度测试；一般留 true，让同层之间也能做遮挡
                 });
                 const defaultBgSprite = new THREE.Sprite(spriteDefault);
                 defaultBgSprite.scale.set(this.pxToWorld(width), this.pxToWorld(height), 1);
+                defaultBgSprite.renderOrder = -2;
                 // 2. 悬停背景（select），初始隐藏
                 const selBgMat = new THREE.SpriteMaterial({
                     map: backgroundSelect,
                     transparent: true,
-                    opacity: 0.5,
+                    opacity: 0,
                     depthWrite: false, // 不写入深度缓存
                     depthTest: true, // （可选）是否进行深度测试；一般留 true，让同层之间也能做遮挡
                 });
                 const hoverBgSprite = new THREE.Sprite(selBgMat);
                 hoverBgSprite.scale.set(this.pxToWorld(width), this.pxToWorld(height), 1);
-                hoverBgSprite.visible = false;
                 // 3 图标中心
                 const spriteIcon = new THREE.SpriteMaterial({
                     map: icon,
@@ -257,7 +258,7 @@ export default {
                 iconSprite.scale.set(this.pxToWorld(width * 0.9), this.pxToWorld(height * 0.9), 1);
 
                 // 设置图标初始尺寸 (可根据实际图片比例微调)/背景
-                const canvas = this.getCanvas(240, 0.7);
+                const canvas = this.getCanvas(240, 0.5);
                 const circleTexture = new THREE.CanvasTexture(canvas);
                 const spriteMat = new THREE.SpriteMaterial({
                     map: circleTexture,
@@ -267,6 +268,7 @@ export default {
                 });
                 const circleSprite = new THREE.Sprite(spriteMat);
                 circleSprite.scale.set(this.pxToWorld(width * 0.8), this.pxToWorld(height * 0.8), 1);
+                circleSprite.renderOrder = -1;
 
                 // 4. 把三者组合到一个 Group
                 const iconGroup = new THREE.Group();
@@ -363,7 +365,7 @@ export default {
             this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
             this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-            // 2. 射线检测所有 iconGroup 中的 sprite（假设 iconSprite 在 group.children 索引最后）
+            // 2. 射线检测所有 iconGroup 中的 sprite
             this.raycaster.setFromCamera(this.mouse, this.camera);
             const intersects = [];
             this.iconGroup.forEach((group) => {
@@ -374,32 +376,174 @@ export default {
                 });
             });
 
-            // 3. 还原上一个悬停状态
-            if (this.hoveredGroup) {
-                const { children } = this.hoveredGroup;
-                // children: [circleSprite, defaultBgSprite, hoverBgSprite, iconSprite]
-                children[2].visible = false; // 关闭 hoverBgSprite
-                children[3].scale.copy(children[3].userData.baseScale); // 恢复 iconSprite 缩放
-                this.hoveredGroup = null;
-                document.body.style.cursor = "";
-            }
+            // 3. 获取当前命中组
+            const hitGroup = intersects.length ? intersects[0].object.parent : null;
 
-            // 4. 如果有命中，激活新的悬停
-            if (intersects.length) {
-                const hit = intersects[0].object;
-                const group = hit.parent; // Sprite 的 parent 就是 iconGroup
-                const [, defaultBg, hoverBg, iconSprite] = group.children;
-                // 记录 iconSprite 原始大小
-                if (!iconSprite.userData.baseScale) {
-                    iconSprite.userData.baseScale = iconSprite.scale.clone();
+            // ✅ 只有在悬停组发生变化时才执行还原和新动画
+            if (this.hoveredGroup !== hitGroup) {
+                // 还原上一个
+                if (this.hoveredGroup && this.hoveredGroup.userData.hasHovered) {
+                    const [transp, defaultBg, hoverBg, iconSprite] = this.hoveredGroup.children;
+                    this.animateObject(defaultBg, "opacity", { opacity: 1 }, 1000, 1);
+                    this.animateObject(hoverBg, "opacity", { opacity: 0 }, 1000, 1);
+                    this.animateObject(hoverBg, "rotation", { x: 0, y: 0, z: 0 }, 1000, 1);
+                    iconSprite.scale.copy(iconSprite.userData.baseScale);
+                    this.hoveredGroup.userData.hasHovered = false;
                 }
-                hoverBg.visible = true;
-                iconSprite.scale.copy(iconSprite.userData.baseScale).multiplyScalar(1.2);
-                this.hoveredGroup = group;
-                document.body.style.cursor = "pointer";
+                // 设置新的
+                if (hitGroup && !hitGroup.userData.hasHovered) {
+                    const [transp, defaultBg, hoverBg, iconSprite] = hitGroup.children;
+                    if (!iconSprite.userData.baseScale) {
+                        iconSprite.userData.baseScale = iconSprite.scale.clone();
+                    }
+
+                    this.animateObject(iconSprite, "scale", { scale: 1.2 }, 400, 1);
+                    this.animateObject(defaultBg, "opacity", { opacity: 0 }, 1000, 1);
+                    this.animateObject(hoverBg, "opacity", { opacity: 1 }, 1000, 1);
+                    this.animateObject(hoverBg, "rotation", { x: 0, y: 0, z: -Math.PI / 2 }, 1000, 1);
+                    hitGroup.userData.hasHovered = true;
+                }
+
+                this.hoveredGroup = hitGroup;
+                document.body.style.cursor = hitGroup ? "pointer" : "";
             }
         },
+
         onClick() {},
+        /**
+         * 通用动画函数（不依赖 tween.js），支持并行多条动画、重复次 数、可取消
+         *
+         * @param {THREE.Object3D|THREE.Camera} object      - 目标对象
+         * @param {'scale'|'position'|'camera'|'hide'|'opacity'|'rotation'} type
+         * @param {Object}   toParams                       - 目标参数
+         * @param {number}   duration                       - 动画时长（毫秒）
+         * @param {number}   [repeat=Infinity]              - 重复次数，默认为无限
+         * @param {Function} [onComplete]                   - 单次动画完成回调
+         * @returns {{ cancel: () => void }}                - 可用于手动取消本次动画的控制器
+         */
+        animateObject(object, type, toParams, duration = 1000, repeat = Infinity, onComplete) {
+            let startTime = performance.now();
+            let runCount = 0;
+            let cancelled = false;
+
+            // 捕获一次初始状态（针对每次循环会重新 capture）
+            let from, to;
+            const capture = () => {
+                if (type === "scale") {
+                    // 缓存对象最初的 baseScale
+                    if (!object.userData._globalBaseScale) {
+                        object.userData._globalBaseScale = object.scale.clone();
+                    }
+                    const baseScale = object.userData._globalBaseScale;
+                    const factor = toParams.scale ?? 1;
+                    from = object.scale.clone();
+                    to = baseScale.clone().multiplyScalar(factor);
+                } else if (type === "position" || type === "camera") {
+                    from = object.position.clone();
+                    to = new THREE.Vector3(toParams.x ?? object.position.x, toParams.y ?? object.position.y, toParams.z ?? object.position.z);
+                } else if (type === "rotation") {
+                    if (object instanceof THREE.Sprite) {
+                        // Sprite 用 material.rotation（单值）
+                        const angle = toParams.radian ?? toParams.z;
+                        from = { r: object.material.rotation };
+                        to = { r: angle ?? from.r };
+                    } else {
+                        // 普通 Object3D 用 Euler
+                        from = object.rotation.clone();
+                        to = new THREE.Euler(toParams.x ?? object.rotation.x, toParams.y ?? object.rotation.y, toParams.z ?? object.rotation.z, object.rotation.order);
+                    }
+                } else if (type === "opacity") {
+                    const mat = object.material;
+                    if (!mat || typeof mat.opacity !== "number") {
+                        console.warn("对象没有可动画的 opacity 属性");
+                        cancelled = true;
+                        return;
+                    }
+                    mat.transparent = true;
+                    from = { opacity: mat.opacity };
+                    to = { opacity: toParams.opacity ?? mat.opacity };
+                } else if (type === "hide") {
+                    object.visible = !!toParams.visible;
+                    onComplete?.(runCount);
+                    cancelled = true;
+                    return;
+                } else {
+                    console.warn(`Unsupported animation type: ${type}`);
+                    cancelled = true;
+                    return;
+                }
+            };
+
+            capture();
+            if (cancelled) {
+                return {
+                    cancel: () => {
+                        /** no-op */
+                    },
+                };
+            }
+
+            // tick 函数本身闭包捕获了 from/to/duration/repeat/onComplete
+            const tick = (now) => {
+                if (cancelled) return;
+
+                const elapsed = now - startTime;
+                const t = Math.min(elapsed / duration, 1);
+                const ease = t * (2 - t);
+
+                // 插值更新
+                switch (type) {
+                    case "scale":
+                        object.scale.copy(from.clone().lerp(to, ease));
+                        break;
+                    case "position":
+                    case "camera":
+                        object.position.copy(from.clone().lerp(to, ease));
+                        break;
+                    case "rotation":
+                        if (object instanceof THREE.Sprite) {
+                            const curr = from.r + (to.r - from.r) * ease;
+                            object.material.rotation = curr;
+                        } else {
+                            object.rotation.set(THREE.MathUtils.lerp(from.x, to.x, ease), THREE.MathUtils.lerp(from.y, to.y, ease), THREE.MathUtils.lerp(from.z, to.z, ease), from.order);
+                        }
+                        break;
+                    case "opacity":
+                        object.material.opacity = from.opacity + (to.opacity - from.opacity) * ease;
+                        break;
+                }
+
+                if (t < 1) {
+                    requestAnimationFrame(tick);
+                } else {
+                    // 强制到最终值
+                    if (type === "scale") object.scale.copy(to);
+                    if (type === "position") object.position.copy(to);
+                    if (type === "camera") object.position.copy(to);
+                    if (type === "rotation") object.rotation.copy(to);
+                    if (type === "opacity") object.material.opacity = to.opacity;
+
+                    runCount++;
+                    onComplete?.(runCount);
+
+                    if (runCount < repeat) {
+                        // 再来一轮
+                        startTime = performance.now();
+                        capture(); // 重新采集 from/to
+                        requestAnimationFrame(tick);
+                    }
+                }
+            };
+
+            requestAnimationFrame(tick);
+
+            // 返回一个控制器，你可以通过它取消这条动画
+            return {
+                cancel() {
+                    cancelled = true;
+                },
+            };
+        },
     },
 };
 </script>
