@@ -12,7 +12,7 @@ module.exports = {
             email: 'ronge@aliyun.com',
             time: '2024-2029',
             icp: '粤ICP备2025406902号-1',
-            mps: "粤网络公安XXXXXXX号"
+            mps: "粤公网安备44030002006837号"
         }
     }
 }

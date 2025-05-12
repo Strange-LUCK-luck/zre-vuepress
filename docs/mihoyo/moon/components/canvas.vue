@@ -65,7 +65,7 @@ export default {
             const degToRad = (deg) => (deg * Math.PI) / 180;
             // PerspectiveCamera(垂直视角度数，)相机视角
             this.camera = new THREE.PerspectiveCamera(90, this.width / this.height, 0.1, 2000);
-            this.camera.position.set(0, 3 / 5, 5 / 5);
+            this.camera.position.set(0, 2.8 / 5, 5 / 5);
             this.camera.rotation.set(degToRad(-30), 0, 0);
             this.camera.lookAt(0, 0, 0);
             // 场景对象
@@ -139,7 +139,7 @@ export default {
                 const mesh = new THREE.Mesh(geometry, material);
 
                 // 初始 scale 为 0
-                mesh.scale.set(0, 0, 0);
+                mesh.scale.set(0.01, 0.01, 0.01);
                 // 记录出现动画的开始时间和持续时长
                 mesh.userData.appearStart = performance.now();
                 mesh.userData.appearDuration = 2000 - 200 * this.meshes.length; // 单位 ms，比如 0.5s
@@ -160,9 +160,11 @@ export default {
                 mesh.renderOrder = options.layer || 0;
 
                 mesh.userData.animate = options.animate;
-                if (options.iconList && options.iconList.length) {
-                    this.addIcon(options.iconList, mesh);
-                }
+                this.animateObject(mesh, "scale", { scale: 100 }, 1000, 1, () => {
+                    if (options.iconList && options.iconList.length) {
+                        this.addIcon(options.iconList, mesh);
+                    }
+                });
                 this.meshes.push(mesh);
                 this.scene.add(mesh);
                 this.renderer.render(this.scene, this.camera);
@@ -280,11 +282,13 @@ export default {
                 iconGroup.position.set(this.pxToWorld(x || 0), this.pxToWorld(y || 0), this.pxToWorld(z || 0));
                 iconGroup.userData = data;
                 // 初始整体 scale 为 0
-                iconGroup.scale.set(0, 0, 0);
+                iconGroup.scale.set(0.01, 0.01, 0.01);
                 // 记录 appear 动画
                 iconGroup.userData.appearStart = performance.now();
                 iconGroup.userData.appearDuration = 2000; // ms
                 iconGroup.userData.targetScale = new THREE.Vector3(1, 1, 1);
+
+                this.animateObject(iconGroup, "scale", { scale: 100 }, 1000, 1);
                 // 给图片新增icon
                 this.iconGroup.push(iconGroup);
                 mesh.add(iconGroup);
@@ -317,24 +321,6 @@ export default {
         },
         // 递归执行动画
         activeAnimate(node, camera) {
-            const now = performance.now();
-
-            // —— 出现动画插值 ——
-            if (node.userData.appearStart != null) {
-                const t0 = node.userData.appearStart;
-                const d = node.userData.appearDuration;
-                const u = Math.min((now - t0) / d, 1); // [0,1]
-                const target = node.userData.targetScale;
-                // 线性插值 scale
-                node.scale.set(target.x * u, target.y * u, target.z * u);
-                if (u >= 1) {
-                    // 完成后，清理标记
-                    delete node.userData.appearStart;
-                    delete node.userData.appearDuration;
-                    delete node.userData.targetScale;
-                }
-            }
-
             if (node.userData.animate) {
                 node.userData.animate(node, camera);
             }

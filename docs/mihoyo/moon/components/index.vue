@@ -42,7 +42,7 @@ const star_compass_urls = [
     require("../../../.vuepress/public/mihoyo/空月之歌/p2_phone_niequan_b.png"),
     require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_c_2.png"),
     require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_d_2.png"),
-    require("../../../.vuepress/public/mihoyo/空月之歌/p2_phone_quan_a.png"),
+    require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_e_1.png"),
     require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_top.png"),
     require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_a.png"),
     require("../../../.vuepress/public/mihoyo/空月之歌/p2_lp_d.png"),
@@ -245,7 +245,7 @@ export default {
             const swiperBg = this.imgNodes.swiperBg || [];
             starCompass.forEach((image, index) => {
                 let item = this.getRenderConfig("starCompass", index);
-                item.src = image;
+                item.src = star_compass_urls[index];
                 if (index === 5) {
                     item.iconList = this.imgNodes.swiper
                         .filter((node, iconIndex) => iconIndex < 3)
