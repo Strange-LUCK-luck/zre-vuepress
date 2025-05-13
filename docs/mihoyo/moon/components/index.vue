@@ -245,7 +245,7 @@ export default {
             const swiperBg = this.imgNodes.swiperBg || [];
             starCompass.forEach((image, index) => {
                 let item = this.getRenderConfig("starCompass", index);
-                item.src = star_compass_urls[index];
+                item.src = image;
                 if (index === 5) {
                     item.iconList = this.imgNodes.swiper
                         .filter((node, iconIndex) => iconIndex < 3)

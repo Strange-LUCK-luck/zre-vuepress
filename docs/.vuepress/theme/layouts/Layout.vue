@@ -146,5 +146,18 @@ export default {
     right: 0px;
     padding: 1rem;
     z-index: 1;
+    font-size: 1rem;
+}
+@media (max-width: 959px) {
+    .ICP {
+        font-size: 0.8rem;
+        padding: 0.8rem;
+    }
+}
+@media (max-width: 719px) {
+    .ICP {
+        font-size: 0.7rem;
+        padding: 0.7rem;
+    }
 }
 </style>
