@@ -4,10 +4,13 @@ module.exports = {
     themeConfig: {
         nav: [
             { text: '首页', link: '/' },
-            { text: '指南', link: '/guide/' },
+            { text: '开发', items: [{ text: 'nodejs版本隔离', link: '/article/node-environment.html' }] },
+            { text: '作品', items: [{ text: 'mohoyo空月之歌', link: '/mihoyo/moon/' }] },
             { text: '友情链接', link: 'https://www.ghostangel909.cn' }
         ],
-        sidebar: 'auto',
+        sidebar: {
+            '/article/': [{ title: 'nodejs版本隔离', path: 'node-environment' }]
+        },
         other: {
             email: 'ronge@aliyun.com',
             time: '2024-2029',
