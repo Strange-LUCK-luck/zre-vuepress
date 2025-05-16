@@ -4,12 +4,12 @@ module.exports = {
     themeConfig: {
         nav: [
             { text: '首页', link: '/' },
-            { text: '开发', items: [{ text: 'nodejs版本隔离', link: '/article/node-environment.html' }] },
-            { text: '作品', items: [{ text: 'mohoyo空月之歌', link: '/mihoyo/moon/' }] },
+            { text: '开发', items: [{ text: 'nodejs版本隔离', link: '/article/node-environment.html' },{ text: 'Rocky Linux 安装 MySQL 8', link: '/article/rocky-mysql.html' }] },
+            { text: '作品', items: [{ text: 'mohoyo空月之歌', link: '/mihoyo/moon/' }, { text: '背单词', link: '/personalWorks/memorizeWords/' }] },
             { text: '友情链接', link: 'https://www.ghostangel909.cn' }
         ],
         sidebar: {
-            '/article/': [{ title: 'nodejs版本隔离', path: 'node-environment' }]
+            '/article/': [{ title: 'nodejs版本隔离', path: 'node-environment' }, { title: 'Rocky Linux 安装 MySQL 8', path: 'rocky-mysql' }]
         },
         other: {
             email: 'ronge@aliyun.com',
