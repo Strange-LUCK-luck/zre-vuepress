@@ -95,9 +95,9 @@ export default {
                     const element = forStr[index];
                     const node = reStr[index];
                     if (content) {
-                        content += `<div class="page-break"></div>${element}<div class="page-break"></div>${node}`;
+                        content += `<div class="page-break"></div>${element}<div class="page-break"></div><div style="direction: rtl">${node}</div>`;
                     } else {
-                        content = `${element}<div class="page-break"></div>${node}`;
+                        content = `${element}<div class="page-break"></div><div style="direction: rtl">${node}</div>`;
                     }
                 }
                 let style = `
