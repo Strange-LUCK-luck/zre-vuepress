@@ -94,7 +94,11 @@ export default {
                 for (let index = 0; index < forStr.length; index++) {
                     const element = forStr[index];
                     const node = reStr[index];
-                    content += `${element}<div class="page-break"></div>${node}<div class="page-break"></div>`;
+                    if (content) {
+                        content += `<div class="page-break"></div>${element}<div class="page-break"></div>${node}`;
+                    } else {
+                        content = `${element}<div class="page-break"></div>${node}`;
+                    }
                 }
                 let style = `
                 @media print {
@@ -109,12 +113,12 @@ export default {
         },
         htmlContent(height, list, width, num) {
             const maxLength = Math.floor(this.A4H / height) * num;
-            console.log('maxLength :>> ', maxLength);
+            console.log("maxLength :>> ", maxLength);
             const imageObj = {};
             let prop = 0;
             for (let index = 0; index < list.length; index++) {
                 const element = list[index];
-                prop = Math.ceil((index + 1) / (maxLength));
+                prop = Math.ceil((index + 1) / maxLength);
                 if (imageObj[prop]) {
                     imageObj[prop] += `<img src="${element.src}" width="${width * 0.9 || ""}" height="${height * 0.9 || ""}">`;
                 } else {
