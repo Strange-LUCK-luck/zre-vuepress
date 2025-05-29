@@ -2,31 +2,31 @@
 
 ### 一. 系统升级
 
-```bat
+```text
 sudo dnf upgrade --refresh -y
 ```
 
 ### 二. 卸载旧 MySQL 新服务器可忽略
 
-```bat
+```text
 sudo yum remove mysql mysql-server mysql-libs mysql-community-* -y
 ```
 
 ### 三. 切换 YUM 仓库
 
-```bat
+```text
 sudo rpm -ivh https://dev.mysql.com/get/mysql80-community-release-el9-1.noarch.rpm
 ```
 
 ### 四. 安装 MySQL
 
-```bat
+```text
 sudo yum install mysql-community-server -y
 ```
 
 ### 五. GPG 错误（其中一个）
 
-```bat
+```text
 Import of key(s) didn't help, wrong key(s)? 或者 GPG check FAILED
 ```
 
@@ -36,13 +36,13 @@ Import of key(s) didn't help, wrong key(s)? 或者 GPG check FAILED
 
 1. 创建/修改 mysql_pubkey.asc 文件，将密钥内容粘贴到文件，（nano 中 ctrl+x 退出，ctrl+o 保存）
 
-```bat
+```text
 nano mysql_pubkey.asc
 ```
 
 mysql_pubkey.asc 文件内容清空
 
-```bat
+```text
 echo -n "" > mysql_pubkey.asc
 ```
 
@@ -102,32 +102,32 @@ cAZUlaj3id3TxquAlud4lWDz
 
 2. 密钥导入 RPM
 
-```bat
+```text
 sudo rpm --import mysql_pubkey.asc
 ```
 
 ### 七. 重新安装 MySQL
 
-```bat
+```text
 sudo yum install mysql-community-server -y
 ```
 
 ### 八. 启动 MySQL+开机启动
 
-```bat
+```text
 sudo systemctl enable mysqld
 sudo systemctl status mysqld
 ```
 
 ### 九. 临时密码
 
-```bat
+```text
 sudo grep 'temporary password' /var/log/mysqld.log
 ```
 
 返回
 
-```bat
+```text
 2025-03-03T15:26:44.391507Z 6 [Note] [MY-010454] [Server] A temporary password is generated for root@localhost: dg_HcxwFy0Hn
 ```
 
@@ -135,7 +135,7 @@ sudo grep 'temporary password' /var/log/mysqld.log
 
 登陆
 
-```bat
+```text
 mysql -u root -p
 ```
 
