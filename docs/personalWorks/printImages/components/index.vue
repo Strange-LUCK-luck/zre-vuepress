@@ -97,7 +97,7 @@ export default {
                     if (content) {
                         content += `<div class="page-break"></div>${element}<div class="page-break"></div><div style="direction: rtl">${node}</div>`;
                     } else {
-                        content = `${element}<div class="page-break"></div><div style="direction: rtl">${node}</div>`;
+                        content = `${element}<div class="page-break"><div style="direction: rtl">${node}</div>`;
                     }
                 }
                 let style = `
@@ -183,7 +183,7 @@ export default {
             win.document.write(`
   <html>
     <head><style>${style}</style></head>
-    <body onload="window.print(); window.close();">
+    <body onload="window.print(); window.location.reload();">
       ${content}
     </body>
   </html>
