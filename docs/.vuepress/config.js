@@ -6,7 +6,7 @@ module.exports = {
             { text: '首页', link: '/' },
             { text: '开发', items: [{ text: 'nodejs版本隔离', link: '/article/node-environment.html' }] },
             { text: '服务', items: [{ text: 'Rocky Linux 安装 MySQL 8', link: '/article/rocky-mysql.html' }] },
-            { text: '作品', items: [{ text: 'mohoyo空月之歌', link: '/mihoyo/moon/' }, { text: '背单词', link: '/personalWorks/memorizeWords/' }] },
+            { text: '作品', items: [{ text: 'mohoyo空月之歌', link: '/mihoyo/moon/' }, { text: '背单词', link: '/personalWorks/memorizeWords/' }, { text: '打印剧本线索卡', link: '/personalWorks/printImages/' }] },
             { text: '友情链接', link: 'https://www.ghostangel909.cn' }
         ],
         sidebar: {
