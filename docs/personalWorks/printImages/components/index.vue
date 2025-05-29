@@ -47,7 +47,6 @@ export default {
             return (cm * dpi) / 2.54;
         },
         uploadImages(e) {
-            console.log("e :>> ", e);
             this.imageList.push(e);
             this.initImages();
         },
@@ -110,11 +109,12 @@ export default {
         },
         htmlContent(height, list, width, num) {
             const maxLength = Math.floor(this.A4H / height) * num;
+            console.log('maxLength :>> ', maxLength);
             const imageObj = {};
             let prop = 0;
             for (let index = 0; index < list.length; index++) {
                 const element = list[index];
-                prop = Math.ceil((index + 1) / (maxLength * 3));
+                prop = Math.ceil((index + 1) / (maxLength));
                 if (imageObj[prop]) {
                     imageObj[prop] += `<img src="${element.src}" width="${width * 0.9 || ""}" height="${height * 0.9 || ""}">`;
                 } else {
