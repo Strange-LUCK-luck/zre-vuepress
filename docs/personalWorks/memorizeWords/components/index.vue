@@ -1,5 +1,9 @@
 <template>
-    <div ></div>
+    <div class="content">
+        <el-input placeholder="请输入内容">
+            <template slot="prepend">Http://</template>
+        </el-input>
+    </div>
 </template>
 
 <script>
@@ -26,5 +30,8 @@ export default {
     methods: {},
 };
 </script>
-<style lang='scss' scoped>
+<style scoped>
+.content {
+    padding: 0.5rem;
+}
 </style>

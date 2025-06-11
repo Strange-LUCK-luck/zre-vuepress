@@ -10,10 +10,13 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "babel-plugin-component": "^1.1.1",
+    "core-js": "^2.6.12",
+    "element-ui": "^2.15.14",
+    "install": "^0.13.0",
     "vuepress": "^1.9.10"
   },
   "dependencies": {
-    "element-ui": "^2.15.14",
     "gl-matrix": "^3.4.3",
     "three": "^0.176.0",
     "vxe-table": "^3.9.1"
