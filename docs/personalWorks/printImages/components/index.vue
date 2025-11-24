@@ -13,7 +13,6 @@
 import upload from "element-ui/lib/upload";
 import "element-ui/lib/theme-chalk/upload.css";
 import "element-ui/lib/theme-chalk/icon.css";
-import { VxeTable } from "vxe-table";
 export default {
     name: "PrintImageComponent", // 这个名字推荐：大写字母开头驼峰法命名
     dicts: [], //数据字典this.dict.type[name]调用
